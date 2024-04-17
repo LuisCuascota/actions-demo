@@ -35,7 +35,7 @@ jobs:
         id: generate-version
         uses: ./.github/actions/get-version
       - name: Print version
-        run: echo "version is ${{ steps.current-version.outputs.version }}"
+        run: echo "version is ${{ steps.generate-version.outputs.version }}"
 #  deployS3:
 #    needs: build
 #    runs-on: ubuntu-latest
