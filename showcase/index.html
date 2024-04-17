@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Demo</title>
+    <script src="../dist/index.js"></script>
+</head>
+<body>
+<h1>Library Demo</h1>
+<p>Result of sum(5, 5): <span id="sumResult"></span></p>
+<p>Result of subtract(10, 4): <span id="subtractResult"></span></p>
+<script>
+    document.getElementById('sumResult').innerText = sum(5, 5);
+    document.getElementById('subtractResult').innerText = subtract(10, 4);
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+name: Deploy AWS
+
+on:
+  pull_request:
+    branches:
+      - "release/*"
+      - "feature/*"
+      - "master"
+      - "develop"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20.x
+
+      - name: Install dependencies
+        run: npm install
+
+      # Aquí se puede agregar validaciones u otras generaciones
+
+      - name: Build artifacts
+        run: npm run build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload to S3
+        uses: aws-actions/aws-s3-sync@v2
+        with:
+          args: dist/ s3://actions-demo/dist/
+          aws-region: us-east-1
+          delete: true
+
+      - name: Upload Showcase to S3
+        uses: aws-actions/aws-s3-sync@v2
+        with:
+          args: showcase/ s3://actions-demo/showcase/
+          aws-region: us-east-1
+          delete: true
