@@ -12,4 +12,5 @@ runs:
       run: |
         GET_VERSION=$(node -p -e "require('./package.json').version")
         echo "version=${GET_VERSION}" >> $GITHUB_OUTPUT
+        echo "version is ${GET_VERSION}"
       shell: bash
