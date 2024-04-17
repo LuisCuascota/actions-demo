@@ -3,7 +3,7 @@ outputs:
   version:
     value: ${{ steps.current-version.outputs.version }}
   branch:
-    value: ${{ steps.current-version.outputs.branch }}
+    value: ${{ steps.current-branch.outputs.branch }}
 runs:
   using: 'composite'
   steps:
@@ -17,7 +17,7 @@ runs:
         echo "version is ${GET_VERSION}"
       shell: bash
     - name: Get branch number
-      id: extract-number-branch
+      id: current-branch
       run: |
         BRANCH=${{ github.base_ref }}
         IFS='/' read -ra BRANCH_PARTS <<< "$BRANCH"
