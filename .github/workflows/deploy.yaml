@@ -93,5 +93,6 @@ jobs:
       - name: Configurar .npmrc
         run: |
           echo "registry=$(echo ${{ steps.get-repository-endpoint.outputs.endpoint }})" >> ~/.npmrc
+          npm publish
           
 
