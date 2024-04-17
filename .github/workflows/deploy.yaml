@@ -75,10 +75,10 @@ jobs:
         id: get-registry-endpoint
         run: |
           endpoint=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
-          echo "::set-output name=endpoint::$(echo $endpoint | jq -r '.repositoryEndpoint')"
+          echo "endpoint=$(echo $endpoint | jq -r '.repositoryEndpoint')" >> $GITHUB_OUTPUT
       - name: Update .npmrc with registry
         run: |
-          echo "registry=$(echo ${{ steps.get-registry-endpoint.outputs.endpoint }})" >> ~/.npmrc
+          echo "registry=${{ steps.get-registry-endpoint.outputs.endpoint }}" >> ~/.npmrc
       - name: Publish Library
         run: npm publish
 
