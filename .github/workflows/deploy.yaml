@@ -26,11 +26,6 @@ jobs:
 
       - name: Build artifacts
         run: npm run build
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Upload Showcase to S3
         uses: shallwefootball/s3-upload-action@master
         with:
