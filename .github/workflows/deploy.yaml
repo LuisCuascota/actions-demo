@@ -13,10 +13,6 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 20.x
       - name: Install dependencies
         run: npm install
 
@@ -76,13 +72,13 @@ jobs:
         run: |
           aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
       - name: Get registry from CodeArtifact
-        id: get-repository-endpoint
+        id: get-registry-endpoint
         run: |
           endpoint=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
           echo "::set-output name=endpoint::$(echo $endpoint | jq -r '.repositoryEndpoint')"
       - name: Update .npmrc with registry
         run: |
-          echo "registry=$(echo ${{ steps.get-repository-endpoint.outputs.endpoint }})" >> ~/.npmrc
+          echo "registry=$(echo ${{ steps.get-registry-endpoint.outputs.endpoint }})" >> ~/.npmrc
       - name: Publish Library
         run: npm publish
 
