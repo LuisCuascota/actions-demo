@@ -13,43 +13,33 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 20.x
-
       - name: Install dependencies
         run: npm install
 
       # Aquí se puede agregar validaciones u otras generaciones
 
-      - name: Build artifacts
+      - name: Build project
         run: npm run build
-      - name: Upload artifacts dist
+      - name: Save dist in state
         uses: actions/upload-artifact@v3
         with:
           name: dist-files
           path: dist
-      - name: Upload artifacts showcase
-        uses: actions/upload-artifact@v3
-        with:
-          name: showcase-files
-          path: showcase
   deployS3:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Get dist artifacts
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Get dist from state
         uses: actions/download-artifact@v3
         with:
           name: dist-files
           path: ./dist
-      - name: Get showcase artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: showcase-files
-          path: ./showcase
       - name: Upload dist to S3
         uses: shallwefootball/s3-upload-action@master
         with:
@@ -82,17 +72,20 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
-      - name: Publish package to CodeArtifact
+      - name: Init session in CodeArtifact
         run: |
           aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
-      - name: Obtener URL del repositorio CodeArtifact
-        id: get-repository-endpoint
+      - name: Get registry from CodeArtifact
+        id: get-registry-endpoint
         run: |
-          endpoint=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
-          echo "::set-output name=endpoint::$(echo $endpoint | jq -r '.repositoryEndpoint')"
-      - name: Configurar .npmrc
+          registry=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
+          echo "::set-output name=registry::$(echo registry | jq -r '.repositoryEndpoint')"
+      - name: Update .npmrc with registry
         run: |
-          echo "registry=$(echo ${{ steps.get-repository-endpoint.outputs.endpoint }})" >> ~/.npmrc
+          echo "registry=$(echo ${{ steps.get-registry-endpoint.outputs.registry }})" >> ~/.npmrc
           npm publish
-          
+            - name: Update .npmrc with registry
+      - name: Publish library
+        run: npm publish
+
 
