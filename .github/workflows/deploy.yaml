@@ -38,7 +38,7 @@ jobs:
           aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: actions-demo
           destination_dir: dist
-          source_dir: dist/
+          source_dir: ../dist/
       - name: Upload Showcase to S3
         uses: shallwefootball/s3-upload-action@master
         with:
