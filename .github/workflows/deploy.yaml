@@ -31,16 +31,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Upload to S3
-        uses: aws-actions/aws-s3-sync@v2
+      - name: Upload dist to S3
+        uses: shallwefootball/s3-upload-action@master
         with:
-          args: dist/ s3://actions-demo/dist/
-          aws-region: us-east-1
-          delete: true
-
+          aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: actions-demo/dist/
+          source_dir: dist/
       - name: Upload Showcase to S3
-        uses: aws-actions/aws-s3-sync@v2
+        uses: shallwefootball/s3-upload-action@master
         with:
-          args: showcase/ s3://actions-demo/showcase/
-          aws-region: us-east-1
-          delete: true
+          aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: actions-demo/showcase/
+          source_dir: showcase/
