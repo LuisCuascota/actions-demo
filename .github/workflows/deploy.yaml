@@ -82,5 +82,8 @@ jobs:
           aws configure set region us-east-1
       - name: Publish package to CodeArtifact
         run: |
-          aws codeartifact put-package-version --repository actions-demo --domain demo --format npm --namespace actions --package actions-demo --version 1.0.0 --source /dist
+          aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
+      - name: Publish package to CodeArtifact
+        run: |
+          npm publish
 
