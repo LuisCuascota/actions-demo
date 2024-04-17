@@ -83,8 +83,6 @@ jobs:
       - name: Update .npmrc with registry
         run: |
           echo "registry=$(echo ${{ steps.get-registry-endpoint.outputs.registry }})" >> ~/.npmrc
-          npm publish
-            - name: Update .npmrc with registry
       - name: Publish library
         run: npm publish
 
