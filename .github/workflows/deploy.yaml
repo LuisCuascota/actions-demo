@@ -36,22 +36,16 @@ jobs:
         with:
           name: dist-files
           path: ./dist
-      - name: Upload dist to S3
-        uses: shallwefootball/s3-upload-action@master
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: actions-demo
-          destination_dir: dist
-          source_dir: dist
-      - name: Upload Showcase to S3
-        uses: shallwefootball/s3-upload-action@master
-        with:
-          aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: actions-demo
-          destination_dir: showcase
-          source_dir: showcase
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Upload files AWS S3
+        run: |
+          aws s3 sync ./dist s3://actions-demo/dist"
+          aws s3 sync ./showcase s3://actions-demo/showcase
   deployArtifact:
     needs: build
     runs-on: ubuntu-latest
