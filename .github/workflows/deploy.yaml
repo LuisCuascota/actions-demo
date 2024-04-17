@@ -25,27 +25,38 @@ jobs:
         with:
           name: dist-files
           path: dist
-  deployS3:
+  generateVersion:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Get dist from state
-        uses: actions/download-artifact@v3
-        with:
-          name: dist-files
-          path: ./dist
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Upload files AWS S3
-        run: |
-          aws s3 sync ./dist s3://actions-demo/dist
-          aws s3 sync ./showcase s3://actions-demo/showcase
+      - name: Generate new version
+        id: generate-version
+        uses: ./.github/actions/generate-version
+      - name: Print version
+        run: echo "version is ${{ steps.current-version.outputs.version }}"
+#  deployS3:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Get code
+#        uses: actions/checkout@v3
+#      - name: Get dist from state
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: dist-files
+#          path: ./dist
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: us-east-1
+#      - name: Upload files AWS S3
+#        run: |
+#          aws s3 sync ./dist s3://actions-demo/dist
+#          aws s3 sync ./showcase s3://actions-demo/showcase
 #  deployArtifact:
 #    needs: build
 #    runs-on: ubuntu-latest

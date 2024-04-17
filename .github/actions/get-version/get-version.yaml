@@ -1,0 +1,13 @@
+name: Generate Version
+outputs:
+  version:
+    value: ${{ steps.current-version.outputs.version }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Get current version
+      id: current-version
+      run: |
+        GET_VERSION=$(node -p -e "require('./package.json').version")
+        echo "version=${GET_VERSION}" >> $GITHUB_OUTPUT
+      shell: bash
