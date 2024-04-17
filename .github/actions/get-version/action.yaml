@@ -2,6 +2,8 @@ name: Generate Version
 outputs:
   version:
     value: ${{ steps.current-version.outputs.version }}
+  branch:
+    value: ${{ steps.current-version.outputs.branch }}
 runs:
   using: 'composite'
   steps:
@@ -13,4 +15,11 @@ runs:
         GET_VERSION=$(node -p -e "require('./package.json').version")
         echo "version=${GET_VERSION}" >> $GITHUB_OUTPUT
         echo "version is ${GET_VERSION}"
+      shell: bash
+    - name: Get branch number
+      id: extract-number-branch
+      run: |
+        BRANCH=${{ github.base_ref }}
+        IFS='/' read -ra BRANCH_PARTS <<< "$BRANCH"
+        echo "branch=${BRANCH_PARTS[0]}" >> $GITHUB_OUTPUT
       shell: bash
