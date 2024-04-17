@@ -85,6 +85,13 @@ jobs:
       - name: Publish package to CodeArtifact
         run: |
           aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
-          npm publish
+      - name: Obtener URL del repositorio CodeArtifact
+        id: get-repository-endpoint
+        run: |
+          endpoint=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
+          echo "::set-output name=endpoint::$(echo $endpoint | jq -r '.repositoryEndpoint')"
+      - name: Configurar .npmrc
+        run: |
+          echo "registry=$(echo ${{ steps.get-repository-endpoint.outputs.endpoint }})" >> ~/.npmrc
           
 
