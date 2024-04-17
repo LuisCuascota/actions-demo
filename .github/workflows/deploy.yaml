@@ -44,8 +44,8 @@ jobs:
           aws-region: us-east-1
       - name: Upload files AWS S3
         run: |
-          aws s3 sync ./dist s3://actions-demo/dist"
-          aws s3 sync ./showcase s3://actions-demo/showcase
+          aws s3 sync dist s3://actions-demo/dist"
+          aws s3 sync showcase s3://actions-demo/showcase
   deployArtifact:
     needs: build
     runs-on: ubuntu-latest
