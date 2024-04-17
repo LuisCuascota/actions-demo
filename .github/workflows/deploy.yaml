@@ -1,7 +1,7 @@
 name: Deploy AWS
 
 on:
-  pull_request:
+  push:
     branches:
       - "release/*"
       - "feature/*"
@@ -36,12 +36,14 @@ jobs:
         with:
           aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: actions-demo/dist/
+          aws_bucket: actions-demo
+          destination_dir: dist
           source_dir: dist/
       - name: Upload Showcase to S3
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: actions-demo/showcase/
+          aws_bucket: actions-demo
+          destination_dir: showcase
           source_dir: showcase/
