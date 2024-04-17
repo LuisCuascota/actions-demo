@@ -85,7 +85,6 @@ jobs:
       - name: Publish package to CodeArtifact
         run: |
           aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
-      - name: Publish package to CodeArtifact
-        run: |
           npm publish
+          
 
