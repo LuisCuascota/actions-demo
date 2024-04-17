@@ -22,5 +22,5 @@ runs:
         BRANCH=${{ github.base_ref }}
         IFS='/' read -ra BRANCH_PARTS <<< "$BRANCH"
         echo "branch=${BRANCH_PARTS[0]}" >> $GITHUB_OUTPUT
-        echo "branch is ${BRANCH_PARTS[0]}"
+        echo "branch is ${BRANCH}"
       shell: bash
