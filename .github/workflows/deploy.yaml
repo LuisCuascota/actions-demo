@@ -33,4 +33,4 @@ jobs:
           aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: actions-demo
           destination_dir: showcase
-          source_dir: ../showcase/
+          source_dir: showcase
