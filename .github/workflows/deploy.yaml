@@ -31,19 +31,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get lib artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: lib-files
-          path: ./dist
-      - name: Upload dist to S3
-        uses: shallwefootball/s3-upload-action@master
-        with:
-          aws_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: actions-demo
-          destination_dir: dist
-          source_dir: ../dist/
       - name: Upload Showcase to S3
         uses: shallwefootball/s3-upload-action@master
         with:
