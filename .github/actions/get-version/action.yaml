@@ -1,9 +1,10 @@
 name: Generate Version
+description: Task to generate custom version
 outputs:
   version:
-    value: ${{ steps.current-version.outputs.version }}
+    value: ${{ steps.write-values.outputs.version }}
   branch:
-    value: ${{ steps.current-branch.outputs.branch }}
+    value: ${{ steps.write-values.outputs.branch }}
 runs:
   using: 'composite'
   steps:
@@ -13,14 +14,39 @@ runs:
       id: current-version
       run: |
         GET_VERSION=$(node -p -e "require('./package.json').version")
-        echo "version=${GET_VERSION}" >> $GITHUB_OUTPUT
-        echo "version is ${GET_VERSION}"
+        echo "CURRENT_VERSION=${GET_VERSION}" >> $GITHUB_ENV
       shell: bash
-    - name: Get branch number
+    - name: Get branch name
       id: current-branch
       run: |
-        BRANCH=${{ github.base_ref }}
-        IFS='/' read -ra BRANCH_PARTS <<< "$BRANCH"
-        echo "branch=${BRANCH_PARTS[0]}" >> $GITHUB_OUTPUT
-        echo "branch is ${{github}}"
+        FROM_BRANCH=${{ github.head_ref }}
+        IFS='/' read -ra BRANCH_PARTS <<< "$FROM_BRANCH"
+        echo "FROM_BRANCH=${BRANCH_PARTS[0]}" >> $GITHUB_ENV
+      shell: bash
+    - name: Generate new version
+      run: |
+        IFS='-' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+        
+        if [[ "${FROM_BRANCH}" == "feature" ]]; then
+          echo "Tipo de rama: feature"
+          echo "NEW_VERSION=${CURRENT_VERSION}" >> $GITHUB_ENV
+        
+        elif [[ "${FROM_BRANCH}" == "release" ]]; then
+          echo "Tipo de rama: release"
+          echo "NEW_VERSION=${VERSION_PARTS[0]}-alpha" >> $GITHUB_ENV
+        
+        elif [[ "${FROM_BRANCH}" == "hotfix" ]]; then
+          echo "Tipo de rama: hotfix"
+          echo "NEW_VERSION=${VERSION_PARTS[0]}-patch" >> $GITHUB_ENV
+        
+        else
+          echo "Tipo de rama: develop"
+          echo "NEW_VERSION=${VERSION_PARTS[0]}" >> $GITHUB_ENV
+        fi
+      shell: bash
+    - name: Write values
+      id: write-values
+      run: |
+        echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+        echo "branch=${FROM_BRANCH}" >> $GITHUB_OUTPUT
       shell: bash

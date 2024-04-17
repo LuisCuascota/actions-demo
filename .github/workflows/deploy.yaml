@@ -1,12 +1,13 @@
 name: Deploy AWS
 
 on:
-  push:
+  pull_request:
     branches:
       - "release/*"
       - "feature/*"
       - "master"
       - "develop"
+    types: [closed]
 jobs:
   build:
     runs-on: ubuntu-latest
