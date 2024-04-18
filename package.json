@@ -1,6 +1,6 @@
 {
   "name": "actions-demo",
-  "version": "1.2.4-alpha",
+  "version": "1.2.4",
   "description": "",
   "main": "dist/index.js",
   "files": [
