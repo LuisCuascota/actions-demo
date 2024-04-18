@@ -34,8 +34,12 @@ jobs:
         id: version
         run: |
           NEW_VERSION=${{ needs.build-version.outputs.new-version }}
-          echo "NEW_VERSION is $NEW_VERSION"
-          npm version "$NEW_VERSION"
+          BRANCH=${{ needs.build-version.outputs.branch }}
+          
+          if [ "$BRANCH" == "master" ] || [ "$BRANCH" == "develop" ]; then
+            echo "NEW_VERSION is $NEW_VERSION"
+            npm version "$NEW_VERSION"
+          fi
       - name: Install dependencies
         run: npm install
 
