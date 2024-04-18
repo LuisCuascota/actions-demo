@@ -57,6 +57,9 @@ jobs:
           BRANCH=${{ needs.build-version.outputs.branch }}
           echo "BRANCH_TO_PUSH is $BRANCH"
           git push --follow-tags origin HEAD:"$BRANCH"
+    outputs:
+      new-version: ${{ needs.build-version.outputs.new-version }}
+      branch: ${{ needs.build-version.outputs.branch }}
   deployS3:
     needs: build
     runs-on: ubuntu-latest
@@ -76,7 +79,7 @@ jobs:
           aws-region: us-east-1
       - name: Define bucket
         run: |
-          BRANCH=${{ needs.build-version.outputs.branch }}
+          BRANCH=${{ needs.build.outputs.branch }}
           
           if [ "$BRANCH" == "master" ]; then
             echo "DESTINATION_BUCKET=actions-demo-prod" >> $GITHUB_ENV
@@ -119,7 +122,7 @@ jobs:
           echo "registry=${{ steps.get-registry-endpoint.outputs.endpoint }}" >> ~/.npmrc
       - name: Publish Library
         run: |
-          BRANCH=${{ needs.build-version.outputs.branch }}
+          BRANCH=${{ needs.build.outputs.branch }}
           
           if [ "$BRANCH" == "master" ]; then
             npm publish
