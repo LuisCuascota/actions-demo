@@ -10,14 +10,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get latest tag
-        id: get_latest_tag
-        run: |
-          LAST_TAG=$(git describe --abbrev=0 --tags)
-          echo "latest_tag=${LAST_TAG}" >> $GITHUB_OUTPUT
-
       - name: Revert to last tag
         run: |
           git checkout master
-          git reset --hard $(git rev-list -n 1 ${GITHUB_REF#refs/tags/})
-          git push --force
+          git reset --hard $(git describe --tags --abbrev=0)^
+          git push --force origin master
