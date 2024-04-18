@@ -9,11 +9,33 @@ on:
       - "develop"
     types: [closed]
 jobs:
-  build:
+  build-version:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
         uses: actions/checkout@v3
+      - name: Generate new version
+        id: generate-version
+        uses: ./.github/actions/get-version
+    outputs:
+      new-version: ${{ steps.generate-version.outputs.version }}
+      branch: ${{ steps.generate-version.outputs.branch }}
+  build:
+    needs: build-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Config Git identity
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      - name: Set new version in package.json
+        id: version
+        run: |
+          NEW_VERSION=${{ needs.build-version.outputs.new-version }}
+          echo "NEW_VERSION is $NEW_VERSION"
+          npm version "$NEW_VERSION"
       - name: Install dependencies
         run: npm install
 
@@ -26,19 +48,11 @@ jobs:
         with:
           name: dist-files
           path: dist
-  generateVersion:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get code
-        uses: actions/checkout@v3
-      - name: Generate new version
-        id: generate-version
-        uses: ./.github/actions/get-version
-      - name: Print version
+      - name: Push new version to GitHub
         run: |
-          echo "version is ${{ steps.generate-version.outputs.version }}"
-          echo "branch is ${{ steps.generate-version.outputs.branch }}"
+          BRANCH=${{ needs.build-version.outputs.branch }}
+          echo "BRANCH_TO_PUSH is $BRANCH"
+          git push --follow-tags origin HEAD:"$BRANCH"
 #  deployS3:
 #    needs: build
 #    runs-on: ubuntu-latest
