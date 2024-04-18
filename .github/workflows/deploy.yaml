@@ -83,8 +83,8 @@ jobs:
           fi
       - name: Upload files AWS S3
         run: |
-          aws s3 sync ./dist s3://${{DESTINATION_BUCKET}}/dist
-          aws s3 sync ./showcase s3://${{DESTINATION_BUCKET}}o/showcase
+          aws s3 sync ./dist s3://${{ DESTINATION_BUCKET }}/dist
+          aws s3 sync ./showcase s3://${{ DESTINATION_BUCKET }}/showcase
   deployArtifact:
     needs: build
     runs-on: ubuntu-latest
