@@ -1,0 +1,23 @@
+name: Manual Revert to Last Tag
+
+on:
+  workflow_dispatch:
+
+jobs:
+  revert_to_last_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          LAST_TAG=$(git describe --abbrev=0 --tags)
+          echo "latest_tag=${LAST_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Revert to last tag
+        run: |
+          git checkout master
+          git reset --hard $(git rev-list -n 1 ${GITHUB_REF#refs/tags/})
+          git push --force
