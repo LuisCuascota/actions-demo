@@ -1,8 +1,11 @@
 {
   "name": "actions-demo",
-  "version": "1.0.0",
+  "version": "1.0.0-dev.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc"
   },
