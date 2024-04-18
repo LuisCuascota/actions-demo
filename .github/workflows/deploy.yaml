@@ -53,56 +53,73 @@ jobs:
           BRANCH=${{ needs.build-version.outputs.branch }}
           echo "BRANCH_TO_PUSH is $BRANCH"
           git push --follow-tags origin HEAD:"$BRANCH"
-#  deployS3:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Get code
-#        uses: actions/checkout@v3
-#      - name: Get dist from state
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: dist-files
-#          path: ./dist
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v2
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: us-east-1
-#      - name: Upload files AWS S3
-#        run: |
-#          aws s3 sync ./dist s3://actions-demo/dist
-#          aws s3 sync ./showcase s3://actions-demo/showcase
-#  deployArtifact:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Get code
-#        uses: actions/checkout@v3
-#      - name: Get dist artifacts
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: dist-files
-#          path: ./dist
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v2
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: us-east-1
-#      - name: Init session in CodeArtifact
-#        run: |
-#          aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
-#      - name: Get registry from CodeArtifact
-#        id: get-registry-endpoint
-#        run: |
-#          endpoint=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
-#          echo "endpoint=$(echo $endpoint | jq -r '.repositoryEndpoint')" >> $GITHUB_OUTPUT
-#      - name: Update .npmrc with registry
-#        run: |
-#          echo "registry=${{ steps.get-registry-endpoint.outputs.endpoint }}" >> ~/.npmrc
-#      - name: Publish Library
-#        run: npm publish
-
+  deployS3:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Get dist from state
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+          path: ./dist
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Define bucket
+        run: |
+          BRANCH=${{ needs.build-version.outputs.branch }}
+          
+          if [ "$BRANCH" == "master" ]; then
+            echo "DESTINATION_BUCKET=actions-demo-prod" >> $GITHUB_ENV
+          elif [ "$BRANCH" == "develop" ]; then
+            echo "DESTINATION_BUCKET=actions-demo-preprod" >> $GITHUB_ENV
+          else
+            echo "DESTINATION_BUCKET=actions-demo-qa" >> $GITHUB_ENV
+          fi
+      - name: Upload files AWS S3
+        run: |
+          aws s3 sync ./dist s3://${{DESTINATION_BUCKET}}/dist
+          aws s3 sync ./showcase s3://${{DESTINATION_BUCKET}}o/showcase
+  deployArtifact:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Get dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+          path: ./dist
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Init session in CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository actions-demo --domain demo --namespace actions
+      - name: Get registry from CodeArtifact
+        id: get-registry-endpoint
+        run: |
+          endpoint=$(aws codeartifact get-repository-endpoint --domain demo --repository actions-demo --format npm)
+          echo "endpoint=$(echo $endpoint | jq -r '.repositoryEndpoint')" >> $GITHUB_OUTPUT
+      - name: Update .npmrc with registry
+        run: |
+          echo "registry=${{ steps.get-registry-endpoint.outputs.endpoint }}" >> ~/.npmrc
+      - name: Publish Library
+        run: |
+          BRANCH=${{ needs.build-version.outputs.branch }}
+          
+          if [ "$BRANCH" == "master" ]; then
+            npm publish
+          else
+            npm publish --tag alpha
+          fi
 
