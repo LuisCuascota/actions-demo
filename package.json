@@ -1,6 +1,6 @@
 {
   "name": "actions-demo",
-  "version": "1.5.3-patch",
+  "version": "1.5.3",
   "description": "",
   "main": "dist/index.js",
   "files": [
