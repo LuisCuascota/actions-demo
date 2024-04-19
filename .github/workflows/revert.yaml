@@ -7,14 +7,53 @@ jobs:
   revert_to_last_tag:
     runs-on: ubuntu-latest
     steps:
+      - name: Manual Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: LuisCuascota
+          minimum-approvals: 1
+          issue-title: Rollback to last deploy on prod
+          issue-body: Please approve or deny the reverse
+
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Revert to last tag
         run: |
           git checkout master
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "latest_tag: $latest_tag"
           
-          PENULTIMATE_TAG=$(git tag --sort=-creatordate | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | sed -n '2p')
+          penultimate_tag=$(git tag --sort=-creatordate | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | sed -n '2p')
+          echo "penultimate_tag is $penultimate_tag" 
           
-          git reset --hard ${PENULTIMATE_TAG}
+          git reset --hard $(git rev-parse ${penultimate_tag})
           git push --force origin master
+          git tag -d $latest_tag && git push origin :refs/tags/$latest_tag
+
+      - name: Install dependencies
+        run: npm install
+
+      # Aquí se puede agregar validaciones u otras generaciones
+
+      - name: Build project
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Define bucket
+        run: |
+          echo "DESTINATION_BUCKET=actions-demo-prod" >> $GITHUB_ENV
+
+      - name: Upload files AWS S3
+        run: |
+          aws s3 cp --acl public-read --recursive dist s3://${{ env.DESTINATION_BUCKET }}/dist
+          aws s3 cp --acl public-read index.html s3://${{ env.DESTINATION_BUCKET }}/
