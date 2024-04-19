@@ -115,7 +115,7 @@ jobs:
       - name: Upload files AWS S3
         run: |
           aws s3 sync ./dist s3://${{ env.DESTINATION_BUCKET }}/dist
-          aws s3 sync ./showcase s3://${{ env.DESTINATION_BUCKET }}/showcase
+          aws s3 sync ./index.html s3://${{ env.DESTINATION_BUCKET }}
 
   deploy-artifact:
     needs: build
